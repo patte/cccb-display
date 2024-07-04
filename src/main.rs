@@ -15,41 +15,41 @@ fn main() {
     let width: u8 = 56; // in tiles (*8 for pixels)
     let height: u8 = 160; // lines (/8 for pixels)
 
-    let mut img1 = ImageReader::open("assets/ccc.png")
+    let img1 = ImageReader::open("assets/ccc.png")
         .unwrap()
         .decode()
-        .unwrap();
-    img1 = img1.resize(
-        width as u32 * 8,
-        height as u32,
-        image::imageops::FilterType::Nearest,
-    );
-    let mut img2 = ImageReader::open("assets/pesthorn.jpg")
+        .unwrap()
+        .resize(
+            width as u32 * 8,
+            height as u32,
+            image::imageops::FilterType::Nearest,
+        );
+    fn img1_pixel_is_black(pix: &image::Rgba<u8>) -> bool {
+        pix[3] != 0
+    }
+
+    let img2 = ImageReader::open("assets/pesthorn.jpg")
         .unwrap()
         .decode()
-        .unwrap();
-    img2 = img2.resize(
-        width as u32 * 8,
-        height as u32,
-        image::imageops::FilterType::Nearest,
-    );
+        .unwrap()
+        .resize(
+            width as u32 * 8,
+            height as u32,
+            image::imageops::FilterType::Nearest,
+        );
+    fn img2_pixel_is_black(pix: &image::Rgba<u8>) -> bool {
+        pix[0] <= 128
+    }
 
     let mut toggle = false;
     loop {
-        let img_name = if toggle { "ccc.png" } else { "pesthorn.jpg" };
         let img = if toggle { &img1 } else { &img2 };
+        let pix_is_black = if toggle {
+            img1_pixel_is_black
+        } else {
+            img2_pixel_is_black
+        };
         toggle = !toggle;
-
-        // let img = ImageReader::open(img_name).unwrap().decode().unwrap();
-        // //let img = ImageReader::open("pesthorn.jpg").unwrap().decode().unwrap();
-        // let img = img.resize(
-        //     width as u32 * 8,
-        //     height as u32,
-        //     image::imageops::FilterType::Nearest,
-        // );
-        //let img_dimensions = img.dimensions();
-        //println!("img dimensions: {:?}", img_dimensions);
-        //println!("img: {:?}", img.pixels());
 
         let mut packed_bytes: Vec<u8> = vec![0; 10 + width as usize * height as usize];
 
@@ -78,14 +78,8 @@ fn main() {
                     if img_x < img.dimensions().0 {
                         let pix = img.get_pixel(img_x, y as u32);
                         current_byte = current_byte << 1;
-                        if img_name == "ccc.png" {
-                            if pix[3] != 0 {
-                                current_byte = current_byte | 1;
-                            }
-                        } else {
-                            if pix[0] <= 128 {
-                                current_byte = current_byte | 1;
-                            }
+                        if pix_is_black(&pix) {
+                            current_byte = current_byte | 1;
                         }
                     }
                 }
@@ -94,29 +88,10 @@ fn main() {
             }
         }
 
-        /*
-        let mut nextPixel: u8 = 0;
-        for (i, pix) in img.into_rgba8().pixels().enumerate() {
-            //packed_bytes[i + 10] = pix[3];
-            //if pix[3] != 0 {
-            //    packed_bytes[i + 10] = 255;
-            //}
-            nextPixel += pix[3];
-            if i % 8 == 0 {
-                packed_bytes[i / 8 + 10] = nextPixel;
-                nextPixel = 0;
-            }
-        }
-        */
-
         //println!("sending packet");
         socket
             .send_to(&packed_bytes, (ip.clone(), port))
             .expect("failed to send packet");
-
-        //println!("sending x: {x:b}");
-        //std::thread::sleep(std::time::Duration::from_secs(5));
-        //}
     }
 
     //println!("done");
