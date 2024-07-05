@@ -13,7 +13,7 @@ fn main() {
     let socket = net::UdpSocket::bind("0.0.0.0:0").expect("failed to bind host socket");
 
     let width: u8 = 56; // in tiles (*8 for pixels)
-    let height: u8 = 160; // lines (/8 for pixels)
+    let height: u8 = 160; // in pixels aka lines
 
     let img1 = ImageReader::open("assets/ccc.png")
         .unwrap()
