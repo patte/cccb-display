@@ -54,6 +54,8 @@ impl CccbDisplayImagePackage {
 
         let offset_x = ((width as u32 * 8) - img.dimensions().0) / 2;
         let offset_y = (height as u32) - img.dimensions().1;
+        //println!("offset_x: {}px {}tile", offset_x, offset_x / 8);
+        //println!("offset_y: {}px", offset_y);
 
         for y in 0..(height as u32).min(img.dimensions().1) {
             for x in 0..width as u32 {

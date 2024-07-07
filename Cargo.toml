@@ -6,7 +6,7 @@ authors = ["patte <p@tte.io>"]
 
 [dependencies]
 dotenv = "0.15.0"
-image = ">=0.24.7"
+image = "^0.25"
 
 [[example]]
 name = "simple"
