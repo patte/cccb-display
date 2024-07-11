@@ -19,8 +19,8 @@ pub struct CccbDisplayImagePackage {
 }
 
 impl CccbDisplayImagePackage {
-    const WIDTH: u8 = 56; // tiles (*8 for pixels)
-    const HEIGHT: u8 = 160; // pixels aka. lines
+    pub const WIDTH: u8 = 56; // tiles (*8 for pixels)
+    pub const HEIGHT: u8 = 160; // pixels aka. lines
 
     pub fn new(img: DynamicImage, pixel_is_on: fn(&Rgba<u8>) -> bool, resize: bool) -> Self {
         let img = if resize {
